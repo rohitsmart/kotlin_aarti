@@ -4,6 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
@@ -31,6 +38,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ImageGalleryScreen() {
     val imageList = listOf(
@@ -50,28 +58,42 @@ fun ImageGalleryScreen() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f) // Occupies remaining space for image display
+                .weight(1f)
                 .pointerInput(Unit) {
                     detectHorizontalDragGestures { change, dragAmount ->
                         change.consume()
                         if (dragAmount > 0) { // Swipe right to go to the previous image
-                            if (currentIndex > 0) {
-                                currentIndex--
-                            }
+                            currentIndex = (currentIndex - 1 + imageList.size) % imageList.size
                         } else { // Swipe left to go to the next image
-                            if (currentIndex < imageList.size - 1) {
-                                currentIndex++
-                            }
+                            currentIndex = (currentIndex + 1) % imageList.size
                         }
                     }
                 },
             contentAlignment = Alignment.Center
         ) {
-            val image = painterResource(id = imageList[currentIndex])
-            DisplayImage(image)
+            AnimatedImage(imageList[currentIndex])
         }
 
         FooterSection()
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun AnimatedImage(imageRes: Int) {
+    AnimatedContent(
+        targetState = imageRes,
+        transitionSpec = {
+            // Slide in/out animation for smooth transitions
+            slideInHorizontally(
+                animationSpec = tween(durationMillis = 500)
+            ) togetherWith slideOutHorizontally(
+                animationSpec = tween(durationMillis = 500)
+            )
+        }, label = ""
+    ) { targetImage ->
+        val painter = painterResource(id = targetImage)
+        DisplayImage(painter)
     }
 }
 
@@ -84,7 +106,7 @@ fun HeaderSection() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        val logo = painterResource(id = R.drawable.ic_logo) // Replace with your logo drawable
+        val logo = painterResource(id = R.drawable.ic_logo)
         Image(
             painter = logo,
             contentDescription = "Logo",
@@ -101,8 +123,8 @@ fun DisplayImage(image: Painter) {
         painter = image,
         contentDescription = null,
         modifier = Modifier
-            .fillMaxSize(), // Makes the image fill the entire available space
-        contentScale = ContentScale.Crop // Ensures the image fills the screen proportionately
+            .fillMaxSize(),
+        contentScale = ContentScale.Crop
     )
 }
 
@@ -115,7 +137,6 @@ fun FooterSection() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        // Placeholder for footer items
         Text(text = "Home", style = MaterialTheme.typography.bodyLarge)
         Text(text = "Settings", style = MaterialTheme.typography.bodyLarge)
         Text(text = "Profile", style = MaterialTheme.typography.bodyLarge)
