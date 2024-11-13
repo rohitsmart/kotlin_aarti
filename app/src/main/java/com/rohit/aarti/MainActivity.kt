@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
@@ -45,16 +45,14 @@ fun ImageGalleryScreen() {
         R.drawable.kirshan,
         R.drawable.vishwakarma
     )
-    var currentIndex by remember { mutableStateOf(0) }
-    var offsetX by remember { mutableStateOf(0f) }
+    var currentIndex by remember { mutableIntStateOf(0) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
     val transition = updateTransition(targetState = currentIndex, label = "")
     val coroutineScope = rememberCoroutineScope()
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         HeaderSection()
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -62,14 +60,13 @@ fun ImageGalleryScreen() {
                 .pointerInput(Unit) {
                     detectHorizontalDragGestures(
                         onDragEnd = {
-                            // Animate to next or previous image based on offsetX
                             coroutineScope.launch {
                                 if (offsetX > 300f) {
                                     currentIndex = (currentIndex - 1 + imageList.size) % imageList.size
                                 } else if (offsetX < -300f) {
                                     currentIndex = (currentIndex + 1) % imageList.size
                                 }
-                                offsetX = 0f // Reset offset after changing image
+                                offsetX = 0f
                             }
                         }
                     ) { change, dragAmount ->
@@ -85,8 +82,8 @@ fun ImageGalleryScreen() {
             ) {
                 AnimatedImage(imageList[currentIndex], offsetX)
             }
+            FixedImage()
         }
-
         FooterSection()
     }
 }
@@ -125,7 +122,7 @@ fun DisplayImage(image: Painter, offsetX: Float) {
         contentDescription = null,
         modifier = Modifier
             .fillMaxSize()
-            .offset { IntOffset(offsetX.toInt(), 0) }, // Applying offset
+            .offset { IntOffset(offsetX.toInt(), 0) },
         contentScale = ContentScale.Crop
     )
 }
@@ -144,3 +141,25 @@ fun FooterSection() {
         Text(text = "Profile", style = MaterialTheme.typography.bodyLarge)
     }
 }
+
+@Composable
+fun FixedImage() {
+    val aartiImage = painterResource(id = R.drawable.aarti)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 40.dp)
+    ) {
+        Image(
+            painter = aartiImage,
+            contentDescription = "Aarti Image",
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .width(100.dp)
+                .height(100.dp),
+            contentScale = ContentScale.Fit
+        )
+    }
+}
+
+
