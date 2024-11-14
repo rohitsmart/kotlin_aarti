@@ -180,7 +180,6 @@ fun ImageGalleryScreen() {
                 }
             )
         }
-        FooterSection()
     }
 }
 
@@ -223,20 +222,7 @@ fun DisplayImage(image: Painter, offsetX: Float) {
     )
 }
 
-@Composable
-fun FooterSection() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround
-    ) {
-        Text(text = "Home", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "Settings", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "Profile", style = MaterialTheme.typography.bodyLarge)
-    }
-}
+
 
 @Composable
 fun FixedImage() {
