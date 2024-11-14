@@ -20,7 +20,7 @@ local.properties
 
 # Ignore Android Studio specific files
 .DS_Store
-.gradle/
+
 
 # Ignore compiled Java bytecode
 *.class
@@ -29,3 +29,5 @@ local.properties
 gradle-wrapper.jar
 gradle-wrapper.properties
 
+.gradle/
+build/

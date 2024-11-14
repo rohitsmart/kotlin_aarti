@@ -4,7 +4,6 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -96,7 +95,6 @@ fun ImageGalleryScreen() {
     var isPlaying by remember { mutableStateOf(false) }
     var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
     val context = LocalContext.current
-
     fun playSound(sound: String) {
         if (isPlaying) {
             mediaPlayer?.stop()
@@ -119,11 +117,12 @@ fun ImageGalleryScreen() {
         mediaPlayer?.apply {
             start()
             isPlaying = true
-
-            Handler(Looper.getMainLooper()).postDelayed({
-                stop()
-                isPlaying = false
-            }, 30000)
+            if (sound == "bell" || sound == "conch_shell") {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    stop()
+                    isPlaying = false
+                }, 30000)
+            }
         }
     }
 
@@ -221,8 +220,6 @@ fun DisplayImage(image: Painter, offsetX: Float) {
         contentScale = ContentScale.Crop
     )
 }
-
-
 
 @Composable
 fun FixedImage() {
