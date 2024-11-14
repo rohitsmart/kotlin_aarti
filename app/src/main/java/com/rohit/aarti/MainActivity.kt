@@ -167,7 +167,7 @@ fun ImageGalleryScreen() {
     var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
     val context = LocalContext.current
     var showFlowerEffect by remember { mutableStateOf(false) }
-    var flowerEffectEndTime by remember { mutableStateOf(0L) }
+    var flowerEffectStartTime by remember { mutableStateOf(0L) }
 
     fun playSound(sound: String) {
         mediaPlayer?.release()
@@ -204,10 +204,18 @@ fun ImageGalleryScreen() {
                 showFlowerEffect = false  // Stop the effect on re-tap
             } else {
                 showFlowerEffect = true   // Start the effect
-                flowerEffectEndTime = System.currentTimeMillis() + 20000  // Set end time 20 seconds from now
+                flowerEffectStartTime = System.currentTimeMillis()  // Record start time
             }
         } else {
             toggleSound(iconType)
+        }
+    }
+
+    // Automatically turn off the flower effect after 20 seconds using LaunchedEffect
+    LaunchedEffect(showFlowerEffect) {
+        if (showFlowerEffect) {
+            delay(20000)
+            showFlowerEffect = false
         }
     }
 
@@ -242,12 +250,9 @@ fun ImageGalleryScreen() {
                 onIconTapped = ::handleIconTapped
             )
 
-            // Trigger flower effect only if within the 20-second window
-            if (showFlowerEffect && System.currentTimeMillis() < flowerEffectEndTime) {
+            // Display flower effect only when showFlowerEffect is true
+            if (showFlowerEffect) {
                 FallingFlowersEffect(durationMillis = 20000)
-            } else if (showFlowerEffect) {
-                // Automatically stop the effect after 20 seconds
-                showFlowerEffect = false
             }
         }
     }
