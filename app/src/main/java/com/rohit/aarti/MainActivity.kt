@@ -80,12 +80,14 @@ fun VerticalIcons(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ImageGalleryScreen() {
-    val imageList = listOf(
-        R.drawable.durga,
-        R.drawable.hanuman,
-        R.drawable.kirshan,
-        R.drawable.vishwakarma
+    val imageSoundMap = mapOf(
+        R.drawable.durga to R.raw.aarti_durga_maa_ki,
+        R.drawable.hanuman to R.raw.shri_hanuman_chalisa,
+        R.drawable.kirshan to R.raw.aarti_sri_ram_ji_ki,
+        R.drawable.vishwakarma to R.raw.shree_vishwakarma_aarti
     )
+    val imageList = imageSoundMap.keys.toList()
+
     var currentIndex by remember { mutableIntStateOf(0) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     val transition = updateTransition(targetState = currentIndex, label = "")
@@ -94,9 +96,9 @@ fun ImageGalleryScreen() {
     var isPlaying by remember { mutableStateOf(false) }
     var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
     val context = LocalContext.current
+
     fun playSound(sound: String) {
         if (isPlaying) {
-            Log.d("Sound", "Stopping previous media player instance")
             mediaPlayer?.stop()
             mediaPlayer?.release()
         }
@@ -104,30 +106,32 @@ fun ImageGalleryScreen() {
         mediaPlayer = when (sound) {
             "bell" -> MediaPlayer.create(context, R.raw.bell_sound)
             "conch_shell" -> MediaPlayer.create(context, R.raw.conch_sound)
-//            "music" -> MediaPlayer.create(context, R.raw.music_sound)
+            "music" -> {
+                val currentImageRes = imageList[currentIndex]
+                val soundRes = imageSoundMap[currentImageRes]
+                soundRes?.let {
+                    MediaPlayer.create(context, it)
+                }
+            }
             else -> null
         }
 
         mediaPlayer?.apply {
             start()
             isPlaying = true
-            Log.d("Sound", "Playing sound: $sound")
 
             Handler(Looper.getMainLooper()).postDelayed({
                 stop()
                 isPlaying = false
-                Log.d("Sound", "Playback stopped after 30 seconds")
             }, 30000)
         }
     }
 
     fun toggleSound(sound: String) {
         if (isPlaying) {
-            Log.d("Sound", "Pausing sound playback for $sound")
             mediaPlayer?.pause()
             isPlaying = false
         } else {
-            Log.d("Sound", "Attempting to play sound: $sound")
             playSound(sound)
         }
     }
@@ -172,7 +176,6 @@ fun ImageGalleryScreen() {
                 iconSize = 58.dp,
                 modifier = Modifier.align(Alignment.BottomStart),
                 onIconTapped = { sound ->
-                    Log.d("IconTapped", "Calling toggleSound with sound: $sound")
                     toggleSound(sound)
                 }
             )
@@ -180,6 +183,7 @@ fun ImageGalleryScreen() {
         FooterSection()
     }
 }
+
 
 @Composable
 fun AnimatedImage(imageRes: Int, offsetX: Float) {
