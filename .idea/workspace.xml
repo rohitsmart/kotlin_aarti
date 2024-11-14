@@ -10,8 +10,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="453611b6-0fba-47a3-b513-c8fa2d62db80" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/raw/bell_sound.mp3" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/raw/conch_sound.mp3" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/values/bell_sound.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/rohit/aarti/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/rohit/aarti/MainActivity.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,6 +72,7 @@
       <list>
         <option value="resourceFile" />
         <option value="Kotlin Class" />
+        <option value="valueResourceFile" />
       </list>
     </option>
   </component>
