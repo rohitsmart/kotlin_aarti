@@ -1,7 +1,10 @@
 package com.rohit.aarti
 
 import android.annotation.SuppressLint
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,10 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.IntOffset
 import com.rohit.aarti.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.launch
 
@@ -53,6 +57,7 @@ fun VerticalIcons(
     bottomPadding: Dp = 50.dp,
     iconSpacing: Dp = 16.dp,
     iconSize: Dp = 48.dp,
+    onIconTapped: @Composable (String) -> Unit,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     Column(
@@ -82,6 +87,43 @@ fun ImageGalleryScreen() {
     var offsetX by remember { mutableFloatStateOf(0f) }
     val transition = updateTransition(targetState = currentIndex, label = "")
     val coroutineScope = rememberCoroutineScope()
+
+    // Sound management state
+    var isPlaying by remember { mutableStateOf(false) }
+    var mediaPlayer: MediaPlayer? = null
+
+    // Function to play the sound for 30 seconds
+    val playSound = @androidx.compose.runtime.Composable { sound: String ->
+        if (isPlaying) {
+            mediaPlayer?.stop()
+            mediaPlayer?.release()
+        }
+
+        mediaPlayer = when (sound) {
+            "bell" -> MediaPlayer.create(LocalContext.current, R.raw.bell_sound)
+            "conch_shell" -> MediaPlayer.create(LocalContext.current, R.raw.conch_sound)
+            else -> null
+        }
+
+        mediaPlayer?.start()
+        isPlaying = true
+
+        // Stop after 30 seconds
+        Handler(Looper.getMainLooper()).postDelayed({
+            mediaPlayer?.stop()
+            isPlaying = false
+        }, 30000)
+    }
+
+    // Toggle sound play/pause
+    val toggleSound = @androidx.compose.runtime.Composable { sound: String ->
+        if (isPlaying) {
+            mediaPlayer?.pause()
+            isPlaying = false
+        } else {
+            playSound(sound)
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -121,7 +163,10 @@ fun ImageGalleryScreen() {
                 bottomPadding = 100.dp,
                 iconSpacing = 20.dp,
                 iconSize = 58.dp,
-                modifier = Modifier.align(Alignment.BottomStart)
+                modifier = Modifier.align(Alignment.BottomStart),
+                onIconTapped = { sound ->
+                    toggleSound(sound)
+                }
             )
         }
         FooterSection()
