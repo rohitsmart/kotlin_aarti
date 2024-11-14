@@ -1,5 +1,6 @@
 package com.rohit.aarti
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.rohit.aarti.ui.theme.MyApplicationTheme
@@ -49,6 +51,7 @@ fun ImageGalleryScreen() {
     var offsetX by remember { mutableFloatStateOf(0f) }
     val transition = updateTransition(targetState = currentIndex, label = "")
     val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -73,8 +76,7 @@ fun ImageGalleryScreen() {
                         change.consume()
                         offsetX += dragAmount
                     }
-                },
-            contentAlignment = Alignment.Center
+                }
         ) {
             transition.AnimatedVisibility(
                 visible = { true },
@@ -82,12 +84,38 @@ fun ImageGalleryScreen() {
             ) {
                 AnimatedImage(imageList[currentIndex], offsetX)
             }
-            // Display the fixed Aarti image at the bottom
             FixedImage()
-            // Display vertical icons on the left side of the image
-            VerticalIcons()
+
+            // Align the VerticalIcons to the bottom-start of the Box
+            VerticalIcons(
+                startPadding = 10.dp,
+                bottomPadding = 30.dp,
+                iconSpacing = 20.dp,
+                modifier = Modifier.align(Alignment.BottomStart) // Correct alignment here
+            )
         }
         FooterSection()
+    }
+}
+
+@Composable
+fun VerticalIcons(
+    startPadding: Dp = 16.dp,
+    bottomPadding: Dp = 26.dp,
+    iconSpacing: Dp = 16.dp,
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier // Add modifier parameter for alignment
+) {
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
+            .padding(start = startPadding, bottom = bottomPadding)
+            .wrapContentHeight(align = Alignment.Bottom),
+        verticalArrangement = Arrangement.spacedBy(iconSpacing),
+        horizontalAlignment = Alignment.Start
+    ) {
+        IconImage(R.drawable.ic_music, "Music Icon")
+        IconImage(R.drawable.ic_conch_shell, "Conch Shell Icon")
+        IconImage(R.drawable.ic_bell, "Bell Icon")
     }
 }
 
@@ -165,20 +193,7 @@ fun FixedImage() {
     }
 }
 
-@Composable
-fun VerticalIcons() {
-    Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .padding(start = 16.dp, top = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.Start
-    ) {
-        IconImage(R.drawable.ic_music, "Music Icon")
-        IconImage(R.drawable.ic_conch_shell, "Conch Shell Icon")
-        IconImage(R.drawable.ic_bell, "Bell Icon")
-    }
-}
+
 
 @Composable
 fun IconImage(iconRes: Int, description: String) {
