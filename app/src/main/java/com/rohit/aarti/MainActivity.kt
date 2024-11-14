@@ -1,5 +1,6 @@
 package com.rohit.aarti
 
+import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -221,37 +222,42 @@ fun DisplayImage(image: Painter, offsetX: Float) {
     )
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun FixedImage(isPlaying: Boolean) {
     val aartiImage = painterResource(id = R.drawable.aarti)
 
-    // Define the infinite transition for animation when isPlaying is true
+    // Define the infinite transition for the semicircular animation when isPlaying is true
     val transition = rememberInfiniteTransition()
-    val offset by transition.animateFloat(
+    val xOffset by transition.animateFloat(
         initialValue = 0f,
-        targetValue = 20f,
+        targetValue = 30f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            animation = tween(durationMillis = 1500, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
 
+    // Animate yOffset based on xOffset for a semicircular effect
+    val yOffset by derivedStateOf { 15f * kotlin.math.sin((xOffset / 30f) * kotlin.math.PI).toFloat() }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 40.dp)
+            .padding(bottom = 100.dp) // Adjust bottom padding to initially center the image
     ) {
         Image(
             painter = aartiImage,
             contentDescription = "Aarti Image",
             modifier = Modifier
-                .align(Alignment.BottomCenter)
+                .align(Alignment.Center)
                 .offset(
-                    x = if (isPlaying) offset.dp else 0.dp,
-                    y = if (isPlaying) -offset.dp else 0.dp
+                    x = if (isPlaying) xOffset.dp else 0.dp,
+                    y = if (isPlaying) yOffset.dp else 0.dp
                 )
                 .width(100.dp)
                 .height(100.dp),
             contentScale = ContentScale.Fit
         )
-    }}
+    }
+}
