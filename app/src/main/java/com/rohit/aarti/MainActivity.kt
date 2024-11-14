@@ -82,7 +82,10 @@ fun ImageGalleryScreen() {
             ) {
                 AnimatedImage(imageList[currentIndex], offsetX)
             }
+            // Display the fixed Aarti image at the bottom
             FixedImage()
+            // Display vertical icons on the left side of the image
+            VerticalIcons()
         }
         FooterSection()
     }
@@ -162,4 +165,28 @@ fun FixedImage() {
     }
 }
 
+@Composable
+fun VerticalIcons() {
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .padding(start = 16.dp, top = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        IconImage(R.drawable.ic_music, "Music Icon")
+        IconImage(R.drawable.ic_conch_shell, "Conch Shell Icon")
+        IconImage(R.drawable.ic_bell, "Bell Icon")
+    }
+}
 
+@Composable
+fun IconImage(iconRes: Int, description: String) {
+    val iconPainter = painterResource(id = iconRes)
+    Image(
+        painter = iconPainter,
+        contentDescription = description,
+        modifier = Modifier.size(40.dp),
+        contentScale = ContentScale.Fit
+    )
+}
