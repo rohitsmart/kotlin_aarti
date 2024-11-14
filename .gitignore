@@ -1,24 +1,31 @@
-# Compiled class file
+# Ignore build directories
+build/
+*/build/
+
+# Ignore local properties (sensitive data like API keys)
+local.properties
+
+# Ignore IDE and system-specific files
+.idea/
+.vscode/
+.gradle/
+.settings/
+*.iml
+
+# Ignore temporary files created by your OS
+*.log
+*.swp
+*.bak
+*.tmp
+
+# Ignore Android Studio specific files
+.DS_Store
+.gradle/
+
+# Ignore compiled Java bytecode
 *.class
 
-# Log file
-*.log
+# Ignore Maven and Gradle wrappers (if not using)
+gradle-wrapper.jar
+gradle-wrapper.properties
 
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
