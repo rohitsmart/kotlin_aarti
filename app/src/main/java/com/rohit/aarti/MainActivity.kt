@@ -91,12 +91,9 @@ fun ImageGalleryScreen() {
     val transition = updateTransition(targetState = currentIndex, label = "")
     val coroutineScope = rememberCoroutineScope()
 
-    // Sound management state
     var isPlaying by remember { mutableStateOf(false) }
     var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
     val context = LocalContext.current
-
-    // Function to play the sound for 30 seconds
     fun playSound(sound: String) {
         if (isPlaying) {
             Log.d("Sound", "Stopping previous media player instance")
@@ -124,7 +121,6 @@ fun ImageGalleryScreen() {
         }
     }
 
-    // Toggle sound play/pause
     fun toggleSound(sound: String) {
         if (isPlaying) {
             Log.d("Sound", "Pausing sound playback for $sound")
