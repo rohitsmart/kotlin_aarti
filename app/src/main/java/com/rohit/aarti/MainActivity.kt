@@ -101,13 +101,18 @@ fun VerticalIcons(
 @Composable
 fun FallingFlowersEffect(durationMillis: Int = 10000) {
     val flowers = remember { mutableStateListOf<FallingFlowerData>() }
+    val flowerResources = listOf(R.drawable.ic_flower, R.drawable.ic_rose, R.drawable.ic_blue_rose)
+
     LaunchedEffect(Unit) {
         val startTime = System.currentTimeMillis()
         while (System.currentTimeMillis() - startTime < durationMillis) {
-            flowers.add(FallingFlowerData())
+            // Randomly select a flower type for each new flower
+            val randomFlowerResource = flowerResources.random()
+            flowers.add(FallingFlowerData(resourceId = randomFlowerResource))
             delay(300)
         }
     }
+
     flowers.forEach { flowerData ->
         FallingFlower(flowerData) { flowers.remove(flowerData) }
     }
@@ -136,7 +141,7 @@ fun FallingFlower(flowerData: FallingFlowerData, onReachedBottom: () -> Unit) {
 
     // Display flower at a random horizontal position and animated vertical position
     Image(
-        painter = painterResource(id = R.drawable.ic_flower),
+        painter = painterResource(id = flowerData.resourceId),
         contentDescription = "Falling Flower",
         modifier = Modifier
             .offset(x = flowerData.startX.dp, y = flowerY)
@@ -147,7 +152,8 @@ fun FallingFlower(flowerData: FallingFlowerData, onReachedBottom: () -> Unit) {
 
 data class FallingFlowerData(
     val startX: Float = (0..300).random().toFloat(),
-    val fallDuration: Int = (3000..5000).random()
+    val fallDuration: Int = (3000..5000).random(),
+    val resourceId: Int // Drawable resource for the flower
 )
 
 @Composable
