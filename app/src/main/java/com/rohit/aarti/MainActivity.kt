@@ -1,10 +1,10 @@
 package com.rohit.aarti
 
-import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,6 +14,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -25,8 +26,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import com.rohit.aarti.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.launch
 
@@ -43,11 +44,13 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun IconImage(iconRes: Int, contentDescription: String, size: Dp = 36.dp) {
+fun IconImage(iconRes: Int, contentDescription: String, size: Dp = 36.dp, onClick: () -> Unit) {
     Image(
         painter = painterResource(id = iconRes),
         contentDescription = contentDescription,
-        modifier = Modifier.size(size)
+        modifier = Modifier
+            .size(size)
+            .clickable { onClick() }
     )
 }
 
@@ -57,8 +60,8 @@ fun VerticalIcons(
     bottomPadding: Dp = 50.dp,
     iconSpacing: Dp = 16.dp,
     iconSize: Dp = 48.dp,
-    onIconTapped: @Composable (String) -> Unit,
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
+    onIconTapped: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -68,9 +71,9 @@ fun VerticalIcons(
         verticalArrangement = Arrangement.spacedBy(iconSpacing),
         horizontalAlignment = Alignment.Start
     ) {
-        IconImage(R.drawable.ic_music, "Music Icon", size = iconSize)
-        IconImage(R.drawable.ic_conch_shell, "Conch Shell Icon", size = iconSize)
-        IconImage(R.drawable.ic_bell, "Bell Icon", size = iconSize)
+        IconImage(R.drawable.ic_music, "Music Icon", size = iconSize) { onIconTapped("music") }
+        IconImage(R.drawable.ic_conch_shell, "Conch Shell Icon", size = iconSize) { onIconTapped("conch_shell") }
+        IconImage(R.drawable.ic_bell, "Bell Icon", size = iconSize) { onIconTapped("bell") }
     }
 }
 
@@ -90,37 +93,45 @@ fun ImageGalleryScreen() {
 
     // Sound management state
     var isPlaying by remember { mutableStateOf(false) }
-    var mediaPlayer: MediaPlayer? = null
+    var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
+    val context = LocalContext.current
 
     // Function to play the sound for 30 seconds
-    val playSound = @androidx.compose.runtime.Composable { sound: String ->
+    fun playSound(sound: String) {
         if (isPlaying) {
+            Log.d("Sound", "Stopping previous media player instance")
             mediaPlayer?.stop()
             mediaPlayer?.release()
         }
 
         mediaPlayer = when (sound) {
-            "bell" -> MediaPlayer.create(LocalContext.current, R.raw.bell_sound)
-            "conch_shell" -> MediaPlayer.create(LocalContext.current, R.raw.conch_sound)
+            "bell" -> MediaPlayer.create(context, R.raw.bell_sound)
+            "conch_shell" -> MediaPlayer.create(context, R.raw.conch_sound)
+//            "music" -> MediaPlayer.create(context, R.raw.music_sound)
             else -> null
         }
 
-        mediaPlayer?.start()
-        isPlaying = true
+        mediaPlayer?.apply {
+            start()
+            isPlaying = true
+            Log.d("Sound", "Playing sound: $sound")
 
-        // Stop after 30 seconds
-        Handler(Looper.getMainLooper()).postDelayed({
-            mediaPlayer?.stop()
-            isPlaying = false
-        }, 30000)
+            Handler(Looper.getMainLooper()).postDelayed({
+                stop()
+                isPlaying = false
+                Log.d("Sound", "Playback stopped after 30 seconds")
+            }, 30000)
+        }
     }
 
     // Toggle sound play/pause
-    val toggleSound = @androidx.compose.runtime.Composable { sound: String ->
+    fun toggleSound(sound: String) {
         if (isPlaying) {
+            Log.d("Sound", "Pausing sound playback for $sound")
             mediaPlayer?.pause()
             isPlaying = false
         } else {
+            Log.d("Sound", "Attempting to play sound: $sound")
             playSound(sound)
         }
     }
@@ -165,6 +176,7 @@ fun ImageGalleryScreen() {
                 iconSize = 58.dp,
                 modifier = Modifier.align(Alignment.BottomStart),
                 onIconTapped = { sound ->
+                    Log.d("IconTapped", "Calling toggleSound with sound: $sound")
                     toggleSound(sound)
                 }
             )
