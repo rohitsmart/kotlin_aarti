@@ -9,6 +9,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -76,7 +82,6 @@ fun VerticalIcons(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ImageGalleryScreen() {
     val imageSoundMap = mapOf(
@@ -89,12 +94,12 @@ fun ImageGalleryScreen() {
 
     var currentIndex by remember { mutableIntStateOf(0) }
     var offsetX by remember { mutableFloatStateOf(0f) }
-    val transition = updateTransition(targetState = currentIndex, label = "")
     val coroutineScope = rememberCoroutineScope()
 
     var isPlaying by remember { mutableStateOf(false) }
     var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
     val context = LocalContext.current
+
     fun playSound(sound: String) {
         if (isPlaying) {
             mediaPlayer?.stop()
@@ -161,13 +166,8 @@ fun ImageGalleryScreen() {
                     }
                 }
         ) {
-            transition.AnimatedVisibility(
-                visible = { true },
-                modifier = Modifier.offset { IntOffset(offsetX.toInt(), 0) }
-            ) {
-                AnimatedImage(imageList[currentIndex], offsetX)
-            }
-            FixedImage()
+            AnimatedImage(imageList[currentIndex], offsetX)
+            FixedImage(isPlaying)
             VerticalIcons(
                 startPadding = 10.dp,
                 bottomPadding = 100.dp,
@@ -222,8 +222,20 @@ fun DisplayImage(image: Painter, offsetX: Float) {
 }
 
 @Composable
-fun FixedImage() {
+fun FixedImage(isPlaying: Boolean) {
     val aartiImage = painterResource(id = R.drawable.aarti)
+
+    // Define the infinite transition for animation when isPlaying is true
+    val transition = rememberInfiniteTransition()
+    val offset by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 20f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -234,9 +246,12 @@ fun FixedImage() {
             contentDescription = "Aarti Image",
             modifier = Modifier
                 .align(Alignment.BottomCenter)
+                .offset(
+                    x = if (isPlaying) offset.dp else 0.dp,
+                    y = if (isPlaying) -offset.dp else 0.dp
+                )
                 .width(100.dp)
                 .height(100.dp),
             contentScale = ContentScale.Fit
         )
-    }
-}
+    }}
