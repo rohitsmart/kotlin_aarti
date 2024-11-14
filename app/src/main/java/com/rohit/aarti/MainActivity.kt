@@ -85,13 +85,11 @@ fun ImageGalleryScreen() {
                 AnimatedImage(imageList[currentIndex], offsetX)
             }
             FixedImage()
-
-            // Align the VerticalIcons to the bottom-start of the Box
             VerticalIcons(
                 startPadding = 10.dp,
                 bottomPadding = 30.dp,
                 iconSpacing = 20.dp,
-                modifier = Modifier.align(Alignment.BottomStart) // Correct alignment here
+                modifier = Modifier.align(Alignment.BottomStart)
             )
         }
         FooterSection()
@@ -103,7 +101,7 @@ fun VerticalIcons(
     startPadding: Dp = 16.dp,
     bottomPadding: Dp = 26.dp,
     iconSpacing: Dp = 16.dp,
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier // Add modifier parameter for alignment
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -119,7 +117,6 @@ fun VerticalIcons(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AnimatedImage(imageRes: Int, offsetX: Float) {
     val painter = painterResource(id = imageRes)
@@ -192,8 +189,6 @@ fun FixedImage() {
         )
     }
 }
-
-
 
 @Composable
 fun IconImage(iconRes: Int, description: String) {
