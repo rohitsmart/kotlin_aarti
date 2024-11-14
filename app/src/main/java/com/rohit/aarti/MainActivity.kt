@@ -43,16 +43,16 @@ fun IconImage(iconRes: Int, contentDescription: String, size: Dp = 36.dp) {
     Image(
         painter = painterResource(id = iconRes),
         contentDescription = contentDescription,
-        modifier = Modifier.size(size) // Set icon size here
+        modifier = Modifier.size(size)
     )
 }
 
 @Composable
 fun VerticalIcons(
     startPadding: Dp = 16.dp,
-    bottomPadding: Dp = 50.dp, // Increased padding for more space from the bottom
+    bottomPadding: Dp = 50.dp,
     iconSpacing: Dp = 16.dp,
-    iconSize: Dp = 48.dp, // Default larger size for icons
+    iconSize: Dp = 48.dp,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     Column(
@@ -116,20 +116,17 @@ fun ImageGalleryScreen() {
                 AnimatedImage(imageList[currentIndex], offsetX)
             }
             FixedImage()
-
-            // Align VerticalIcons at the bottom-start with additional padding
             VerticalIcons(
                 startPadding = 10.dp,
-                bottomPadding = 100.dp, // More bottom padding
+                bottomPadding = 100.dp,
                 iconSpacing = 20.dp,
-                iconSize = 58.dp, // Larger icon size
+                iconSize = 58.dp,
                 modifier = Modifier.align(Alignment.BottomStart)
             )
         }
         FooterSection()
     }
 }
-
 
 @Composable
 fun AnimatedImage(imageRes: Int, offsetX: Float) {
@@ -202,15 +199,4 @@ fun FixedImage() {
             contentScale = ContentScale.Fit
         )
     }
-}
-
-@Composable
-fun IconImage(iconRes: Int, description: String) {
-    val iconPainter = painterResource(id = iconRes)
-    Image(
-        painter = iconPainter,
-        contentDescription = description,
-        modifier = Modifier.size(40.dp),
-        contentScale = ContentScale.Fit
-    )
 }
