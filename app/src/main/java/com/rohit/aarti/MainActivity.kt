@@ -38,6 +38,37 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+fun IconImage(iconRes: Int, contentDescription: String, size: Dp = 36.dp) {
+    Image(
+        painter = painterResource(id = iconRes),
+        contentDescription = contentDescription,
+        modifier = Modifier.size(size) // Set icon size here
+    )
+}
+
+@Composable
+fun VerticalIcons(
+    startPadding: Dp = 16.dp,
+    bottomPadding: Dp = 50.dp, // Increased padding for more space from the bottom
+    iconSpacing: Dp = 16.dp,
+    iconSize: Dp = 48.dp, // Default larger size for icons
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
+            .padding(start = startPadding, bottom = bottomPadding)
+            .wrapContentHeight(align = Alignment.Bottom),
+        verticalArrangement = Arrangement.spacedBy(iconSpacing),
+        horizontalAlignment = Alignment.Start
+    ) {
+        IconImage(R.drawable.ic_music, "Music Icon", size = iconSize)
+        IconImage(R.drawable.ic_conch_shell, "Conch Shell Icon", size = iconSize)
+        IconImage(R.drawable.ic_bell, "Bell Icon", size = iconSize)
+    }
+}
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ImageGalleryScreen() {
@@ -85,10 +116,13 @@ fun ImageGalleryScreen() {
                 AnimatedImage(imageList[currentIndex], offsetX)
             }
             FixedImage()
+
+            // Align VerticalIcons at the bottom-start with additional padding
             VerticalIcons(
                 startPadding = 10.dp,
-                bottomPadding = 30.dp,
+                bottomPadding = 50.dp, // More bottom padding
                 iconSpacing = 20.dp,
+                iconSize = 48.dp, // Larger icon size
                 modifier = Modifier.align(Alignment.BottomStart)
             )
         }
@@ -96,26 +130,6 @@ fun ImageGalleryScreen() {
     }
 }
 
-@Composable
-fun VerticalIcons(
-    startPadding: Dp = 16.dp,
-    bottomPadding: Dp = 26.dp,
-    iconSpacing: Dp = 16.dp,
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxHeight()
-            .padding(start = startPadding, bottom = bottomPadding)
-            .wrapContentHeight(align = Alignment.Bottom),
-        verticalArrangement = Arrangement.spacedBy(iconSpacing),
-        horizontalAlignment = Alignment.Start
-    ) {
-        IconImage(R.drawable.ic_music, "Music Icon")
-        IconImage(R.drawable.ic_conch_shell, "Conch Shell Icon")
-        IconImage(R.drawable.ic_bell, "Bell Icon")
-    }
-}
 
 @Composable
 fun AnimatedImage(imageRes: Int, offsetX: Float) {
