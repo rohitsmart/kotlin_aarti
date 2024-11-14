@@ -34,7 +34,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import com.rohit.aarti.ui.theme.MyApplicationTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -50,15 +52,22 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun IconImage(iconRes: Int, contentDescription: String, size: Dp = 36.dp, onClick: () -> Unit) {
+fun IconImage(
+    iconRes: Int,
+    contentDescription: String,
+    size: Dp,
+    onClick: () -> Unit
+) {
     Image(
         painter = painterResource(id = iconRes),
         contentDescription = contentDescription,
         modifier = Modifier
             .size(size)
-            .clickable { onClick() }
+            .clickable(onClick = onClick),
+        contentScale = ContentScale.Fit
     )
 }
+
 
 @Composable
 fun VerticalIcons(
@@ -77,11 +86,69 @@ fun VerticalIcons(
         verticalArrangement = Arrangement.spacedBy(iconSpacing),
         horizontalAlignment = Alignment.Start
     ) {
-        IconImage(R.drawable.ic_music, "Music Icon", size = iconSize) { onIconTapped("music") }
-        IconImage(R.drawable.ic_conch_shell, "Conch Shell Icon", size = iconSize) { onIconTapped("conch_shell") }
-        IconImage(R.drawable.ic_bell, "Bell Icon", size = iconSize) { onIconTapped("bell") }
+        listOf(
+            "music" to R.drawable.ic_music,
+            "conch_shell" to R.drawable.ic_conch_shell,
+            "bell" to R.drawable.ic_bell,
+            "flower" to R.drawable.ic_flower
+        ).forEach { (iconType, iconRes) ->
+            IconImage(iconRes, "$iconType Icon", size = iconSize) { onIconTapped(iconType) }
+        }
     }
 }
+
+
+@Composable
+fun FallingFlowersEffect(durationMillis: Int = 10000) {
+    val flowers = remember { mutableStateListOf<FallingFlowerData>() }
+    LaunchedEffect(Unit) {
+        val startTime = System.currentTimeMillis()
+        while (System.currentTimeMillis() - startTime < durationMillis) {
+            flowers.add(FallingFlowerData())
+            delay(300)
+        }
+    }
+    flowers.forEach { flowerData ->
+        FallingFlower(flowerData) { flowers.remove(flowerData) }
+    }
+}
+
+@Composable
+fun FallingFlower(flowerData: FallingFlowerData, onReachedBottom: () -> Unit) {
+    // Infinite transition with repeatable animation for continuous falling effect
+    val transition = rememberInfiniteTransition(label = "")
+    val yOffset by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = flowerData.fallDuration, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = ""
+    )
+
+    // Calculate y position based on offset and screen height
+    val screenHeight = LocalContext.current.resources.displayMetrics.heightPixels.dp
+    val flowerY = yOffset * screenHeight
+
+    // Remove flower when it reaches the bottom
+    if (flowerY >= screenHeight) onReachedBottom()
+
+    // Display flower at a random horizontal position and animated vertical position
+    Image(
+        painter = painterResource(id = R.drawable.ic_flower),
+        contentDescription = "Falling Flower",
+        modifier = Modifier
+            .offset(x = flowerData.startX.dp, y = flowerY)
+            .size(40.dp), // Flower size, adjust as needed
+        contentScale = ContentScale.Fit
+    )
+}
+
+data class FallingFlowerData(
+    val startX: Float = (0..300).random().toFloat(),
+    val fallDuration: Int = (3000..5000).random()
+)
 
 @Composable
 fun ImageGalleryScreen() {
@@ -96,34 +163,23 @@ fun ImageGalleryScreen() {
     var currentIndex by remember { mutableIntStateOf(0) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     val coroutineScope = rememberCoroutineScope()
-
     var isPlaying by remember { mutableStateOf(false) }
     var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
     val context = LocalContext.current
+    var showFlowerEffect by remember { mutableStateOf(false) }  // State to control flower effect
 
     fun playSound(sound: String) {
-        if (isPlaying) {
-            mediaPlayer?.stop()
-            mediaPlayer?.release()
-        }
-
+        mediaPlayer?.release()
         mediaPlayer = when (sound) {
             "bell" -> MediaPlayer.create(context, R.raw.bell_sound)
             "conch_shell" -> MediaPlayer.create(context, R.raw.conch_sound)
-            "music" -> {
-                val currentImageRes = imageList[currentIndex]
-                val soundRes = imageSoundMap[currentImageRes]
-                soundRes?.let {
-                    MediaPlayer.create(context, it)
-                }
-            }
+            "music" -> imageSoundMap[imageList[currentIndex]]?.let { MediaPlayer.create(context, it) }
             else -> null
         }
-
         mediaPlayer?.apply {
             start()
             isPlaying = true
-            if (sound == "bell" || sound == "conch_shell") {
+            if (sound in listOf("bell", "conch_shell")) {
                 Handler(Looper.getMainLooper()).postDelayed({
                     stop()
                     isPlaying = false
@@ -141,9 +197,15 @@ fun ImageGalleryScreen() {
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    fun handleIconTapped(iconType: String) {
+        if (iconType == "flower") {
+            showFlowerEffect = true  // Trigger flower effect when the flower icon is tapped
+        } else {
+            toggleSound(iconType)
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
         HeaderSection()
         Box(
             modifier = Modifier
@@ -153,11 +215,7 @@ fun ImageGalleryScreen() {
                     detectHorizontalDragGestures(
                         onDragEnd = {
                             coroutineScope.launch {
-                                if (offsetX > 300f) {
-                                    currentIndex = (currentIndex - 1 + imageList.size) % imageList.size
-                                } else if (offsetX < -300f) {
-                                    currentIndex = (currentIndex + 1) % imageList.size
-                                }
+                                currentIndex = (currentIndex + if (offsetX > 300f) -1 else 1 + imageList.size) % imageList.size
                                 offsetX = 0f
                             }
                         }
@@ -171,18 +229,18 @@ fun ImageGalleryScreen() {
             FixedImage(isPlaying)
             VerticalIcons(
                 startPadding = 10.dp,
-                bottomPadding = 100.dp,
+                bottomPadding = 150.dp,
                 iconSpacing = 20.dp,
-                iconSize = 58.dp,
+                iconSize = 70.dp,
                 modifier = Modifier.align(Alignment.BottomStart),
-                onIconTapped = { sound ->
-                    toggleSound(sound)
-                }
+                onIconTapped = ::handleIconTapped
             )
+            if (showFlowerEffect) {
+                FallingFlowersEffect(durationMillis = 10000)
+            }
         }
     }
 }
-
 
 @Composable
 fun AnimatedImage(imageRes: Int, offsetX: Float) {
@@ -238,7 +296,6 @@ fun FixedImage(isPlaying: Boolean) {
         )
     )
 
-    // Animate yOffset based on xOffset for a semicircular effect
     val yOffset by derivedStateOf { 15f * kotlin.math.sin((xOffset / 30f) * kotlin.math.PI).toFloat() }
 
     Box(
@@ -255,8 +312,8 @@ fun FixedImage(isPlaying: Boolean) {
                     x = if (isPlaying) xOffset.dp else 0.dp,
                     y = if (isPlaying) yOffset.dp else 0.dp
                 )
-                .width(100.dp)
-                .height(100.dp),
+                .width(150.dp)
+                .height(150.dp),
             contentScale = ContentScale.Fit
         )
     }
