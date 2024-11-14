@@ -106,7 +106,6 @@ fun FallingFlowersEffect(durationMillis: Int = 10000) {
     LaunchedEffect(Unit) {
         val startTime = System.currentTimeMillis()
         while (System.currentTimeMillis() - startTime < durationMillis) {
-            // Randomly select a flower type for each new flower
             val randomFlowerResource = flowerResources.random()
             flowers.add(FallingFlowerData(resourceId = randomFlowerResource))
             delay(300)
@@ -120,7 +119,6 @@ fun FallingFlowersEffect(durationMillis: Int = 10000) {
 
 @Composable
 fun FallingFlower(flowerData: FallingFlowerData, onReachedBottom: () -> Unit) {
-    // Infinite transition with repeatable animation for continuous falling effect
     val transition = rememberInfiniteTransition(label = "")
     val yOffset by transition.animateFloat(
         initialValue = 0f,
@@ -131,21 +129,15 @@ fun FallingFlower(flowerData: FallingFlowerData, onReachedBottom: () -> Unit) {
         ),
         label = ""
     )
-
-    // Calculate y position based on offset and screen height
     val screenHeight = LocalContext.current.resources.displayMetrics.heightPixels.dp
     val flowerY = yOffset * screenHeight
-
-    // Remove flower when it reaches the bottom
     if (flowerY >= screenHeight) onReachedBottom()
-
-    // Display flower at a random horizontal position and animated vertical position
     Image(
         painter = painterResource(id = flowerData.resourceId),
         contentDescription = "Falling Flower",
         modifier = Modifier
             .offset(x = flowerData.startX.dp, y = flowerY)
-            .size(40.dp), // Flower size, adjust as needed
+            .size(40.dp),
         contentScale = ContentScale.Fit
     )
 }
@@ -153,7 +145,7 @@ fun FallingFlower(flowerData: FallingFlowerData, onReachedBottom: () -> Unit) {
 data class FallingFlowerData(
     val startX: Float = (0..300).random().toFloat(),
     val fallDuration: Int = (3000..5000).random(),
-    val resourceId: Int // Drawable resource for the flower
+    val resourceId: Int
 )
 
 @Composable
@@ -207,17 +199,16 @@ fun ImageGalleryScreen() {
     fun handleIconTapped(iconType: String) {
         if (iconType == "flower") {
             if (showFlowerEffect) {
-                showFlowerEffect = false  // Stop the effect on re-tap
+                showFlowerEffect = false
             } else {
-                showFlowerEffect = true   // Start the effect
-                flowerEffectStartTime = System.currentTimeMillis()  // Record start time
+                showFlowerEffect = true
+                flowerEffectStartTime = System.currentTimeMillis()
             }
         } else {
             toggleSound(iconType)
         }
     }
 
-    // Automatically turn off the flower effect after 20 seconds using LaunchedEffect
     LaunchedEffect(showFlowerEffect) {
         if (showFlowerEffect) {
             delay(20000)
@@ -256,7 +247,6 @@ fun ImageGalleryScreen() {
                 onIconTapped = ::handleIconTapped
             )
 
-            // Display flower effect only when showFlowerEffect is true
             if (showFlowerEffect) {
                 FallingFlowersEffect(durationMillis = 20000)
             }
