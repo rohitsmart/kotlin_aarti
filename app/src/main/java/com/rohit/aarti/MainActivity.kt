@@ -120,9 +120,9 @@ fun ImageGalleryScreen() {
             // Align VerticalIcons at the bottom-start with additional padding
             VerticalIcons(
                 startPadding = 10.dp,
-                bottomPadding = 50.dp, // More bottom padding
+                bottomPadding = 100.dp, // More bottom padding
                 iconSpacing = 20.dp,
-                iconSize = 48.dp, // Larger icon size
+                iconSize = 58.dp, // Larger icon size
                 modifier = Modifier.align(Alignment.BottomStart)
             )
         }
