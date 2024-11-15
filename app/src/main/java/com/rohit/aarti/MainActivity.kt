@@ -8,24 +8,25 @@ import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -56,16 +57,26 @@ fun IconImage(
     iconRes: Int,
     contentDescription: String,
     size: Dp,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    backgroundColor: Color = Color(0xFF011A2C), // Light gray background
+    cornerRadius: Dp = 8.dp, // Adjust to 0.dp for sharp corners if needed
+    iconPadding: Dp = 8.dp
 ) {
-    Image(
-        painter = painterResource(id = iconRes),
-        contentDescription = contentDescription,
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = Modifier
             .size(size)
-            .clickable(onClick = onClick),
-        contentScale = ContentScale.Fit
-    )
+            .background(backgroundColor, shape = RoundedCornerShape(cornerRadius))
+            .clickable(onClick = onClick)
+    ) {
+        Image(
+            painter = painterResource(id = iconRes),
+            contentDescription = contentDescription,
+            modifier = Modifier
+                .size(size - iconPadding),
+            contentScale = ContentScale.Fit
+        )
+    }
 }
 
 
@@ -74,7 +85,7 @@ fun VerticalIcons(
     startPadding: Dp = 16.dp,
     bottomPadding: Dp = 50.dp,
     iconSpacing: Dp = 16.dp,
-    iconSize: Dp = 48.dp,
+    iconSize: Dp = 60.dp,
     onIconTapped: (String) -> Unit,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
@@ -92,10 +103,19 @@ fun VerticalIcons(
             "bell" to R.drawable.ic_bell,
             "flower" to R.drawable.ic_flower
         ).forEach { (iconType, iconRes) ->
-            IconImage(iconRes, "$iconType Icon", size = iconSize) { onIconTapped(iconType) }
+            IconImage(
+                iconRes = iconRes,
+                contentDescription = "$iconType Icon",
+                size = iconSize,
+                onClick = { onIconTapped(iconType) },
+                backgroundColor = Color(0xFFEBF0F5), // Example: Soft Slate background
+                cornerRadius = 8.dp // Modify as needed for the shape
+            )
+
         }
     }
 }
+
 
 
 @Composable
