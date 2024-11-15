@@ -76,7 +76,7 @@ fun VerticalIcons(
     iconSpacing: Dp = 16.dp,
     iconSize: Dp = 48.dp,
     onIconTapped: (String) -> Unit,
-    modifier: Modifier = Modifier
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
