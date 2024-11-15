@@ -182,11 +182,9 @@ fun ImageGalleryScreen() {
     var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
     val context = LocalContext.current
     var showFlowerEffect by remember { mutableStateOf(false) }
-    var flowerEffectStartTime by remember { mutableStateOf(0L) }
+    var flowerEffectStartTime by remember { mutableLongStateOf(0L) }
 
-    // Function to play the sound for a given icon type
     fun playSound(sound: String) {
-        // Release previous media player instance if it's playing
         mediaPlayer?.apply {
             try {
                 if (isPlaying) stop()
@@ -197,7 +195,6 @@ fun ImageGalleryScreen() {
             }
         }
 
-        // Create a new media player based on the selected icon's sound
         mediaPlayer = when (sound) {
             "bell" -> MediaPlayer.create(context, R.raw.bell_sound)
             "conch_shell" -> MediaPlayer.create(context, R.raw.conch_sound)
@@ -205,7 +202,6 @@ fun ImageGalleryScreen() {
             else -> null
         }
 
-        // Start the media player and set the isPlaying state
         mediaPlayer?.apply {
             try {
                 start()
@@ -230,7 +226,6 @@ fun ImageGalleryScreen() {
         }
     }
 
-    // Function to toggle sound play/pause
     fun toggleSound(sound: String) {
         if (isPlaying) {
             mediaPlayer?.pause()
@@ -240,9 +235,7 @@ fun ImageGalleryScreen() {
         }
     }
 
-    // Function to handle tap on an icon
     fun handleIconTapped(iconType: String) {
-        // If it's flower icon, handle flower effect
         if (iconType == "flower") {
             if (showFlowerEffect) {
                 showFlowerEffect = false
@@ -251,12 +244,10 @@ fun ImageGalleryScreen() {
                 flowerEffectStartTime = System.currentTimeMillis()
             }
         } else {
-            // Otherwise, play the sound for the tapped icon
             toggleSound(iconType)
         }
     }
 
-    // Handle flower effect timeout (20 seconds)
     LaunchedEffect(showFlowerEffect) {
         if (showFlowerEffect) {
             delay(20000)
@@ -264,7 +255,6 @@ fun ImageGalleryScreen() {
         }
     }
 
-    // Composable structure for the image gallery screen
     Column(modifier = Modifier.fillMaxSize()) {
         HeaderSection()
         Box(
@@ -285,7 +275,6 @@ fun ImageGalleryScreen() {
                     }
                 }
         ) {
-            // Displaying the image gallery with animations and effects
             AnimatedImage(imageList[currentIndex], offsetX)
             FixedImage(isPlaying)
             VerticalIcons(
@@ -296,15 +285,12 @@ fun ImageGalleryScreen() {
                 modifier = Modifier.align(Alignment.BottomStart),
                 onIconTapped = ::handleIconTapped
             )
-
-            // Display flower effect if triggered
             if (showFlowerEffect) {
                 FallingFlowersEffect(durationMillis = 20000)
             }
         }
     }
 }
-
 
 @Composable
 fun AnimatedImage(imageRes: Int, offsetX: Float) {
