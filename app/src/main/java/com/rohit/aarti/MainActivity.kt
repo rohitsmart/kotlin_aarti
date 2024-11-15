@@ -296,8 +296,6 @@ fun DisplayImage(image: Painter, offsetX: Float) {
 @Composable
 fun FixedImage(isPlaying: Boolean) {
     val aartiImage = painterResource(id = R.drawable.aarti)
-
-    // Define the infinite transition for the semicircular animation when isPlaying is true
     val transition = rememberInfiniteTransition()
     val xOffset by transition.animateFloat(
         initialValue = 0f,
