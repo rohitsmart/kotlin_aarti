@@ -170,13 +170,13 @@ fun ImageGalleryScreen() {
         R.drawable.hanuman to R.raw.shri_hanuman_chalisa,
         R.drawable.kirshan to R.raw.aarti_sri_ram_ji_ki,
         R.drawable.vishwakarma to R.raw.shree_vishwakarma_aarti,
-        R.drawable.karwaimage1 to R.raw.karwa,
-        R.drawable.shiv to R.raw.omshiv ,
+        R.drawable.shiv to R.raw.omshiv,
         R.drawable.ganesh to R.raw.ganpati,
         R.drawable.ambe to R.raw.gauri,
         R.drawable.lilkrishna to R.raw.aartibihari,
-        R.drawable.laxmi to R.raw.laxmi
-
+        R.drawable.laxmi to R.raw.laxmi,
+        R.drawable.saraswati to R.raw.saraswati,
+        R.drawable.karwaimage to R.raw.karwa,
     )
     val imageList = imageSoundMap.keys.toList()
     var currentIndex by remember { mutableIntStateOf(0) }
@@ -191,7 +191,6 @@ fun ImageGalleryScreen() {
     val mediaPlayers = remember { mutableMapOf<String, MediaPlayer>() }
 
     fun playSound(sound: String) {
-        // Stop and release the current MediaPlayer if it's already playing
         mediaPlayers[sound]?.apply {
             if (isPlaying) {
                 stop()
@@ -200,7 +199,6 @@ fun ImageGalleryScreen() {
             release()
         }
 
-        // Initialize a new MediaPlayer for the tapped icon
         val newMediaPlayer = when (sound) {
             "bell" -> MediaPlayer.create(context, R.raw.bell_sound)
             "conch_shell" -> MediaPlayer.create(context, R.raw.conch_sound)
@@ -209,11 +207,10 @@ fun ImageGalleryScreen() {
         }
 
         newMediaPlayer?.apply {
-            mediaPlayers[sound] = this  // Store the new MediaPlayer instance
+            mediaPlayers[sound] = this
             start()
             isPlaying = true
 
-            // Stop sound for "bell" or "conch_shell" after 30 seconds
             if (sound in listOf("bell", "conch_shell")) {
                 Handler(Looper.getMainLooper()).postDelayed({
                     if (isPlaying) {
@@ -222,13 +219,12 @@ fun ImageGalleryScreen() {
                     }
                     release()
                     isPlaying = false
-                    mediaPlayers.remove(sound)  // Remove reference
+                    mediaPlayers.remove(sound)
                 }, 30000)
             }
         }
     }
 
-    // Function to toggle play/pause for specific sound
     fun toggleSound(sound: String) {
         val currentPlayer = mediaPlayers[sound]
         if (currentPlayer?.isPlaying == true) {
@@ -239,7 +235,6 @@ fun ImageGalleryScreen() {
         }
     }
 
-    // Function to handle tap on an icon
     fun handleIconTapped(iconType: String) {
         if (iconType == "flower") {
             showFlowerEffect = !showFlowerEffect
@@ -249,7 +244,6 @@ fun ImageGalleryScreen() {
         }
     }
 
-    // Flower effect auto-stop after 20 seconds
     LaunchedEffect(showFlowerEffect) {
         if (showFlowerEffect) {
             delay(20000)
@@ -267,7 +261,12 @@ fun ImageGalleryScreen() {
                     detectHorizontalDragGestures(
                         onDragEnd = {
                             coroutineScope.launch {
-                                currentIndex = (currentIndex + if (offsetX > 300f) -1 else 1 + imageList.size) % imageList.size
+                                // Update index circularly with both directions in mind
+                                currentIndex = if (offsetX > 300f) {
+                                    (currentIndex - 1 + imageList.size) % imageList.size
+                                } else {
+                                    (currentIndex + 1) % imageList.size
+                                }
                                 offsetX = 0f
                             }
                         }
