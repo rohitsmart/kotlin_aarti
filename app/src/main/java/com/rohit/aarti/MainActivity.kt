@@ -169,7 +169,14 @@ fun ImageGalleryScreen() {
         R.drawable.durga to R.raw.aarti_durga_maa_ki,
         R.drawable.hanuman to R.raw.shri_hanuman_chalisa,
         R.drawable.kirshan to R.raw.aarti_sri_ram_ji_ki,
-        R.drawable.vishwakarma to R.raw.shree_vishwakarma_aarti
+        R.drawable.vishwakarma to R.raw.shree_vishwakarma_aarti,
+        R.drawable.karwaimage1 to R.raw.karwa,
+        R.drawable.shiv to R.raw.omshiv ,
+        R.drawable.ganesh to R.raw.ganpati,
+        R.drawable.ambe to R.raw.gauri,
+        R.drawable.lilkrishna to R.raw.aartibihari,
+        R.drawable.laxmi to R.raw.laxmi
+
     )
     val imageList = imageSoundMap.keys.toList()
     var currentIndex by remember { mutableIntStateOf(0) }
