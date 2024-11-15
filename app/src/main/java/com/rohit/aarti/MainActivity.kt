@@ -19,7 +19,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -58,8 +57,8 @@ fun IconImage(
     contentDescription: String,
     size: Dp,
     onClick: () -> Unit,
-    backgroundColor: Color = Color(0xFF011A2C), // Light gray background
-    cornerRadius: Dp = 8.dp, // Adjust to 0.dp for sharp corners if needed
+    backgroundColor: Color = Color(0xFF011A2C),
+    cornerRadius: Dp = 8.dp,
     iconPadding: Dp = 8.dp
 ) {
     Box(
@@ -129,7 +128,6 @@ data class FallingFlowerData(
     val resourceId: Int
 )
 
-
 @Composable
 fun VerticalIcons(
     startPadding: Dp = 16.dp,
@@ -137,7 +135,7 @@ fun VerticalIcons(
     iconSpacing: Dp = 16.dp,
     iconSize: Dp = 60.dp,
     onIconTapped: (String) -> Unit,
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -161,7 +159,6 @@ fun VerticalIcons(
                 backgroundColor = Color(0xFFEBF0F5),
                 cornerRadius = 8.dp
             )
-
         }
     }
 }
@@ -179,75 +176,73 @@ fun ImageGalleryScreen() {
     var offsetX by remember { mutableFloatStateOf(0f) }
     val coroutineScope = rememberCoroutineScope()
     var isPlaying by remember { mutableStateOf(false) }
-    var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
     val context = LocalContext.current
     var showFlowerEffect by remember { mutableStateOf(false) }
     var flowerEffectStartTime by remember { mutableLongStateOf(0L) }
 
+    // Map to manage MediaPlayer instances
+    val mediaPlayers = remember { mutableMapOf<String, MediaPlayer>() }
+
     fun playSound(sound: String) {
-        mediaPlayer?.apply {
-            try {
-                if (isPlaying) stop()
-            } catch (e: IllegalStateException) {
-                e.printStackTrace()
-            } finally {
-                release()
+        // Stop and release the current MediaPlayer if it's already playing
+        mediaPlayers[sound]?.apply {
+            if (isPlaying) {
+                stop()
+                reset()
             }
+            release()
         }
 
-        mediaPlayer = when (sound) {
+        // Initialize a new MediaPlayer for the tapped icon
+        val newMediaPlayer = when (sound) {
             "bell" -> MediaPlayer.create(context, R.raw.bell_sound)
             "conch_shell" -> MediaPlayer.create(context, R.raw.conch_sound)
             "music" -> imageSoundMap[imageList[currentIndex]]?.let { MediaPlayer.create(context, it) }
             else -> null
         }
 
-        mediaPlayer?.apply {
-            try {
-                start()
-                isPlaying = true
+        newMediaPlayer?.apply {
+            mediaPlayers[sound] = this  // Store the new MediaPlayer instance
+            start()
+            isPlaying = true
 
-                // Stop sound for "bell" or "conch_shell" after 30 seconds
-                if (sound in listOf("bell", "conch_shell")) {
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        try {
-                            stop()
-                            isPlaying = false
-                        } catch (e: IllegalStateException) {
-                            e.printStackTrace()
-                        } finally {
-                            release()
-                        }
-                    }, 30000)
-                }
-            } catch (e: IllegalStateException) {
-                e.printStackTrace()
+            // Stop sound for "bell" or "conch_shell" after 30 seconds
+            if (sound in listOf("bell", "conch_shell")) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (isPlaying) {
+                        stop()
+                        reset()
+                    }
+                    release()
+                    isPlaying = false
+                    mediaPlayers.remove(sound)  // Remove reference
+                }, 30000)
             }
         }
     }
 
+    // Function to toggle play/pause for specific sound
     fun toggleSound(sound: String) {
-        if (isPlaying) {
-            mediaPlayer?.pause()
+        val currentPlayer = mediaPlayers[sound]
+        if (currentPlayer?.isPlaying == true) {
+            currentPlayer.pause()
             isPlaying = false
         } else {
             playSound(sound)
         }
     }
 
+    // Function to handle tap on an icon
     fun handleIconTapped(iconType: String) {
         if (iconType == "flower") {
-            if (showFlowerEffect) {
-                showFlowerEffect = false
-            } else {
-                showFlowerEffect = true
-                flowerEffectStartTime = System.currentTimeMillis()
-            }
+            showFlowerEffect = !showFlowerEffect
+            flowerEffectStartTime = if (showFlowerEffect) System.currentTimeMillis() else 0L
         } else {
             toggleSound(iconType)
         }
     }
 
+    // Flower effect auto-stop after 20 seconds
     LaunchedEffect(showFlowerEffect) {
         if (showFlowerEffect) {
             delay(20000)
@@ -291,6 +286,7 @@ fun ImageGalleryScreen() {
         }
     }
 }
+
 
 @Composable
 fun AnimatedImage(imageRes: Int, offsetX: Float) {
