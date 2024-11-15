@@ -157,7 +157,6 @@ fun ImageGalleryScreen() {
         R.drawable.vishwakarma to R.raw.shree_vishwakarma_aarti
     )
     val imageList = imageSoundMap.keys.toList()
-
     var currentIndex by remember { mutableIntStateOf(0) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     val coroutineScope = rememberCoroutineScope()
@@ -305,9 +304,7 @@ fun FixedImage(isPlaying: Boolean) {
             repeatMode = RepeatMode.Reverse
         )
     )
-
     val yOffset by derivedStateOf { 15f * kotlin.math.sin((xOffset / 30f) * kotlin.math.PI).toFloat() }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
