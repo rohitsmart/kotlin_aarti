@@ -313,7 +313,7 @@ fun FixedImage(isPlaying: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 100.dp) // Adjust bottom padding to initially center the image
+            .padding(bottom = 100.dp)
     ) {
         Image(
             painter = aartiImage,
