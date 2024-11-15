@@ -79,45 +79,6 @@ fun IconImage(
     }
 }
 
-
-@Composable
-fun VerticalIcons(
-    startPadding: Dp = 16.dp,
-    bottomPadding: Dp = 50.dp,
-    iconSpacing: Dp = 16.dp,
-    iconSize: Dp = 60.dp,
-    onIconTapped: (String) -> Unit,
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxHeight()
-            .padding(start = startPadding, bottom = bottomPadding)
-            .wrapContentHeight(align = Alignment.Bottom),
-        verticalArrangement = Arrangement.spacedBy(iconSpacing),
-        horizontalAlignment = Alignment.Start
-    ) {
-        listOf(
-            "music" to R.drawable.ic_music,
-            "conch_shell" to R.drawable.ic_conch_shell,
-            "bell" to R.drawable.ic_bell,
-            "flower" to R.drawable.ic_flower
-        ).forEach { (iconType, iconRes) ->
-            IconImage(
-                iconRes = iconRes,
-                contentDescription = "$iconType Icon",
-                size = iconSize,
-                onClick = { onIconTapped(iconType) },
-                backgroundColor = Color(0xFFEBF0F5), // Example: Soft Slate background
-                cornerRadius = 8.dp // Modify as needed for the shape
-            )
-
-        }
-    }
-}
-
-
-
 @Composable
 fun FallingFlowersEffect(durationMillis: Int = 10000) {
     val flowers = remember { mutableStateListOf<FallingFlowerData>() }
@@ -167,6 +128,44 @@ data class FallingFlowerData(
     val fallDuration: Int = (3000..5000).random(),
     val resourceId: Int
 )
+
+
+@Composable
+fun VerticalIcons(
+    startPadding: Dp = 16.dp,
+    bottomPadding: Dp = 50.dp,
+    iconSpacing: Dp = 16.dp,
+    iconSize: Dp = 60.dp,
+    onIconTapped: (String) -> Unit,
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
+            .padding(start = startPadding, bottom = bottomPadding)
+            .wrapContentHeight(align = Alignment.Bottom),
+        verticalArrangement = Arrangement.spacedBy(iconSpacing),
+        horizontalAlignment = Alignment.Start
+    ) {
+        listOf(
+            "music" to R.drawable.ic_music,
+            "conch_shell" to R.drawable.ic_conch_shell,
+            "bell" to R.drawable.ic_bell,
+            "flower" to R.drawable.ic_flower
+        ).forEach { (iconType, iconRes) ->
+            IconImage(
+                iconRes = iconRes,
+                contentDescription = "$iconType Icon",
+                size = iconSize,
+                onClick = { onIconTapped(iconType) },
+                backgroundColor = Color(0xFFEBF0F5),
+                cornerRadius = 8.dp
+            )
+
+        }
+    }
+}
+
 
 @Composable
 fun ImageGalleryScreen() {
